@@ -10,7 +10,7 @@ n_nodes_hl3 = 2500
 
 n_classes = 10
 batch_size = 100
-
+#hoi
 # input feature size = 28x28 pixels = 784
 x = tf.placeholder('float', [None, 784])
 y = tf.placeholder('float')
