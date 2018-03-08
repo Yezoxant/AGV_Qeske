@@ -7,15 +7,17 @@ def captureImage():
     camera.resolution = (320, 240)
     camera.start_preview()
     sleep(2)
-    while(active == true):
+    while (active):
         camera.capture('test.jpeg')
     camera.stop_preview()
 
-def ActivateCamera():
+
+def activateCamera():
     global active
     active = True
     captureImage()
 
-def DeactivateCamera():
+
+def deactivateCamera():
     global active
     active = False
