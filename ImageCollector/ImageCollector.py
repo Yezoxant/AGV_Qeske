@@ -1,6 +1,6 @@
 from time import sleep
+import time
 from picamera import PiCamera
-
 
 def captureImage():
     camera = PiCamera()
@@ -8,7 +8,8 @@ def captureImage():
     camera.start_preview()
     sleep(2)
     while (active):
-        camera.capture('test.jpeg')
+        timestamp = time.strftime("%d-$m_%H:%M:%S")
+        camera.capture('/media/pi/RASPBERRY/img'+timestamp+'.jpeg')
     camera.stop_preview()
 
 
