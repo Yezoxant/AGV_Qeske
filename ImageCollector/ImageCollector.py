@@ -5,6 +5,8 @@ import RPi.GPIO as GPIO
 def init_GPIO():
     GPIO.setmode(GPIO.BCM) #BCM pin numbering
     GPIO.setup(3,GPIO.IN) #Use pin3 as input
+    GPIO.setup(5,GPIO.OUT) #Use pin5 as output for green feedback LED
+    GPIO.setup(7,GPIO.OUT) #Use pin7 as output for red feedback LED
 
 
 def captureImage():
