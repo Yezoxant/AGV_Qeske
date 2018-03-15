@@ -1,6 +1,7 @@
 from time import sleep
 from picamera import PiCamera
 import RPi.GPIO as GPIO
+import os
 
 #constants for pin numbers
 INPUT_SAVE_DATA_PIN = 3
@@ -41,8 +42,10 @@ def captureImageLoop():
     while save_data_active:
 
         timestamp = time.strftime("%d-$m_%H:%M:%S") #TODO:Add milliseconds
-        path = '/media/pi/RASPBERRY/CapturedData/img'+timestamp+'.jpeg'
-        camera.capture(path)
+        path = '/media/pi/RASPBERRY/CapturedData/'
+        filename = 'img{}_{}.jpeg'.format(counter,timestamp)
+        picturesave = os.path.join(path,filename)
+        camera.capture(picturesave)
         #TODO:Steeringinput capture
         #TODO:Save path & steering input to csv file
 
