@@ -2,6 +2,7 @@ from time import sleep,strftime
 from picamera import PiCamera
 import RPi.GPIO as GPIO
 import os
+import csv
 
 #constants for pin numbers
 INPUT_SAVE_DATA_PIN = 3
@@ -65,15 +66,18 @@ def captureImageLoop():
             camera.capture(picturesave)
             image_counter += 1
             #TODO:Steeringinput capture
-            #TODO:Save path & steering input to csv file
+            editCsv(filename,steerinput)#Save path & steering input to csv file
             sleep(0.5)
 
 
         while not save_data_active: #Loop during pause status
             print("Waiting for button press")
             sleep(0.5)
-
-
+def editCsv(picture,steer): 
+    with open('/media/pi/RASPBERRY/data.csv','a')as file:
+        writer = csv.writer(file)
+        writer.writerow([picture, steer])
+        
 if __name__ == "__main__":
     init_GPIO()
     GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, True)
