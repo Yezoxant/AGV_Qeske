@@ -46,13 +46,14 @@ def captureImageLoop():
         #TODO:Steeringinput capture
         #TODO:Save path & steering input to csv file
 
-        sleep(1)
-        if not save_data_active: #break if button is pressed
-            break
+        sleep(0.5)
+        # if not save_data_active: #break if button is pressed
+        #     break
 
     while not save_data_active: #Loop during pause status
-        if save_data_active: #break if pause button is pressed again
-            break
+        sleep(0.5)
+        # if save_data_active: #break if pause button is pressed again
+        #     break
 
 
 if __name__ == "__main__":
