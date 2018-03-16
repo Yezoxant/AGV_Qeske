@@ -1,6 +1,7 @@
 from time import sleep,strftime
 from picamera import PiCamera
 import RPi.GPIO as GPIO
+import os
 
 #constants for pin numbers
 INPUT_SAVE_DATA_PIN = 3
@@ -32,7 +33,11 @@ def init_GPIO():
     GPIO.add_event_detect(INPUT_SAVE_DATA_PIN, GPIO.RISING)
     GPIO.add_event_callback(INPUT_SAVE_DATA_PIN,button_pushed)
 
-
+def checkFolder():
+    global image_counter
+    files = os.listdir(path)
+    image_counter = len(files)
+    image_counter += 1
 
 def initCamera():
     global camera
@@ -44,26 +49,29 @@ def initCamera():
 
 
 def captureImageLoop():
-    image_counter = 0
     global save_data_active
+    global path
+    global image_counter
+    path = '/media/pi/RASPBERRY/CapturedData/'
+    checkFolder()
+
     while True:
         while save_data_active:
-
+            timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
+            filename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
+            picturesave = os.path.join(path,filename)
+            camera.capture(picturesave)
             print("Entered imagecapture loop")
-            timestamp = strftime("%d-%m-%H-%M-%S") #TODO:Add milliseconds
-            path = '/media/pi/RASPBERRY/CapturedData/img'+str(image_counter)+"_"+timestamp+'.jpeg'
-            camera.capture(path)
+            camera.capture(picturesave)
             image_counter += 1
             #TODO:Steeringinput capture
             #TODO:Save path & steering input to csv file
-
             sleep(0.5)
 
 
         while not save_data_active: #Loop during pause status
             print("Waiting for button press")
             sleep(0.5)
-
 
 
 if __name__ == "__main__":
