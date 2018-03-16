@@ -1,4 +1,4 @@
-from time import sleep
+from time import sleep,strftime
 from picamera import PiCamera
 import RPi.GPIO as GPIO
 
@@ -12,9 +12,15 @@ save_data_active = False #global var for datasaving status
 
 def button_pushed(*args, **kwargs):
     #Callback function when save data button pressed
+
     global save_data_active
-    save_data_active = not save_data_active #If button pressed switch mode
-    GPIO.output(OUTPUT_SAVE_DATA_PIN,save_data_active) #Turn led on/off
+    save_data_active = not save_data_active  # If button pressed switch mode
+    print("Button pushed, savedat ="+str(save_data_active))
+    if save_data_active:
+        GPIO.output(OUTPUT_SAVE_DATA_PIN,GPIO.HIGH) #Turn led on/off
+    else:
+        GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)  # Turn led on/off
+
 
 def init_GPIO():
     GPIO.setmode(GPIO.BOARD) #BOARD pin numbering
@@ -29,34 +35,39 @@ def init_GPIO():
 
 
 def initCamera():
-
+    global camera
     camera = PiCamera()
     camera.resolution = (320, 240)
     camera.start_preview()
+    sleep(2)
+    camera.stop_preview()
+
 
 def captureImageLoop():
-
+    image_counter = 0
     global save_data_active
+    while True:
+        while save_data_active:
 
-    while save_data_active:
+            print("Entered imagecapture loop")
+            timestamp = strftime("%d-%m-%H-%M-%S") #TODO:Add milliseconds
+            path = '/media/pi/RASPBERRY/CapturedData/img'+str(image_counter)+"_"+timestamp+'.jpeg'
+            camera.capture(path)
+            image_counter += 1
+            #TODO:Steeringinput capture
+            #TODO:Save path & steering input to csv file
 
-        timestamp = time.strftime("%d-$m_%H:%M:%S") #TODO:Add milliseconds
-        path = '/media/pi/RASPBERRY/CapturedData/img'+timestamp+'.jpeg'
-        camera.capture(path)
-        #TODO:Steeringinput capture
-        #TODO:Save path & steering input to csv file
+            sleep(0.5)
 
-        sleep(0.5)
-        # if not save_data_active: #break if button is pressed
-        #     break
 
-    while not save_data_active: #Loop during pause status
-        sleep(0.5)
-        # if save_data_active: #break if pause button is pressed again
-        #     break
+        while not save_data_active: #Loop during pause status
+            print("Waiting for button press")
+            sleep(0.5)
+
 
 
 if __name__ == "__main__":
+    init_GPIO()
     GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, True)
     initCamera()
     captureImageLoop()
