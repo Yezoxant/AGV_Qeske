@@ -68,11 +68,10 @@ def captureImageLoop():
             #TODO:Steeringinput capture
             editCsv(filename,steerinput)#Save path & steering input to csv file
             sleep(0.5)
-
-
         while not save_data_active: #Loop during pause status
             print("Waiting for button press")
             sleep(0.5)
+
 def editCsv(picture,steer): 
     with open('/media/pi/RASPBERRY/data.csv','a')as file:
         writer = csv.writer(file)
