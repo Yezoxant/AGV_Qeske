@@ -3,6 +3,9 @@ from picamera import PiCamera
 import RPi.GPIO as GPIO
 import os
 import csv
+import serial
+import re
+import time
 
 #constants for pin numbers
 INPUT_SAVE_DATA_PIN = 3
@@ -22,6 +25,23 @@ def button_pushed(*args, **kwargs):
         GPIO.output(OUTPUT_SAVE_DATA_PIN,GPIO.HIGH) #Turn led on/off
     else:
         GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)  # Turn led on/off
+
+def init_serial():
+    global ser
+    ser = serial.Serial(port = "/dev/ttyACM0", baudrate = 115200)
+
+def get_motion():
+    cmd = "get motion\n"
+    cmd_bytes = str.encode(cmd)
+    ser.flush()
+    g = ser.write(cmd_bytes)
+    response = ''
+    sleep(0.1)
+
+    while ser.in_waiting > 0:
+        response += ser.read().decode('utf-8')
+    res = re.search("(?:.+:)(.+)",response)
+    return res.group(1)
 
 
 def init_GPIO():
@@ -59,14 +79,20 @@ def captureImageLoop():
     while True:
         while save_data_active:
             timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
+            start = time.time()
             filename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
             picturesave = os.path.join(path,filename)
-            camera.capture(picturesave)
             print("Entered imagecapture loop")
-            camera.capture(picturesave)
-            image_counter += 1
-            #TODO:Steeringinput capture
-            editCsv(filename,steerinput)#Save path & steering input to csv file
+            steerinput = get_motion()
+            if steerinput == None:
+                GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
+                break
+            else:
+                camera.capture(picturesave)
+                image_counter += 1
+                editCsv(filename,steerinput)#Save path & steering input to csv file
+            stop = time.time()
+            print (stop-start), "seconds"
             sleep(0.5)
         while not save_data_active: #Loop during pause status
             print("Waiting for button press")
@@ -79,8 +105,9 @@ def editCsv(picture,steer):
         
 if __name__ == "__main__":
     init_GPIO()
-    GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, True)
     initCamera()
+    init_serial()
+    GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, GPIO.HIGH)
     captureImageLoop()
-    GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, False)
+    GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, GPIO.LOW)
 
