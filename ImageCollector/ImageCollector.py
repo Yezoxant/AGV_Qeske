@@ -1,11 +1,12 @@
 from time import sleep,strftime
+from Capture_Steering import init_serial
 from picamera import PiCamera
 import RPi.GPIO as GPIO
-import os
-import csv
-import serial
+import Capture_Steering as steering
+import csv_editor as editor
 import re
 import time
+
 
 #constants for pin numbers
 INPUT_SAVE_DATA_PIN = 3
@@ -15,33 +16,6 @@ OUTPUT_SAVE_DATA_PIN = 11
 
 save_data_active = False #global var for datasaving status
 
-def button_pushed(*args, **kwargs):
-    #Callback function when save data button pressed
-
-    global save_data_active
-    save_data_active = not save_data_active  # If button pressed switch mode
-    print("Button pushed, savedat ="+str(save_data_active))
-    if save_data_active:
-        GPIO.output(OUTPUT_SAVE_DATA_PIN,GPIO.HIGH) #Turn led on/off
-    else:
-        GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)  # Turn led on/off
-
-def init_serial():
-    global ser
-    ser = serial.Serial(port = "/dev/ttyACM0", baudrate = 115200)
-
-def get_motion():
-    cmd = "get motion\n"
-    cmd_bytes = str.encode(cmd)
-    ser.flush()
-    g = ser.write(cmd_bytes)
-    response = ''
-    sleep(0.1)
-
-    while ser.in_waiting > 0:
-        response += ser.read().decode('utf-8')
-    res = re.search("(?:.+:)(.+)",response)
-    return res.group(1)
 
 
 def init_GPIO():
@@ -54,19 +28,29 @@ def init_GPIO():
     GPIO.add_event_detect(INPUT_SAVE_DATA_PIN, GPIO.RISING)
     GPIO.add_event_callback(INPUT_SAVE_DATA_PIN,button_pushed)
 
-def checkFolder():
-    global image_counter
-    files = os.listdir(path)
-    image_counter = len(files)
-    image_counter += 1
+
 
 def initCamera():
     global camera
     camera = PiCamera()
-    camera.resolution = (320, 240)
+    camera.resolution = (480, 320)
     camera.start_preview()
     sleep(2)
     camera.stop_preview()
+
+
+
+def button_pushed(*args, **kwargs):
+    #Callback function when save data button pressed
+
+    global save_data_active
+    save_data_active = not save_data_active  # If button pressed switch mode
+    print("Button pushed, savedat ="+str(save_data_active))
+    if save_data_active:
+        GPIO.output(OUTPUT_SAVE_DATA_PIN,GPIO.HIGH) #Turn led on/off
+    else:
+        GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)  # Turn led on/off
+
 
 
 def captureImageLoop():
@@ -74,23 +58,26 @@ def captureImageLoop():
     global path
     global image_counter
     path = '/media/pi/RASPBERRY/CapturedData/'
-    checkFolder()
+    csvfile = '/media/pi/RASPBERRY/data.csv'
+    edittype = 'a'
+
+    editor.checkFolder()
 
     while True:
         while save_data_active:
             timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
             start = time.time()
-            filename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
+            picturename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
             picturesave = os.path.join(path,filename)
             print("Entered imagecapture loop")
-            steerinput = get_motion()
+            steerinput = steering.get_motion()
             if steerinput == None:
                 GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
                 break
             else:
                 camera.capture(picturesave)
                 image_counter += 1
-                editCsv(filename,steerinput)#Save path & steering input to csv file
+                editor.editCsv(picturename,steerinput,edittype,csvfile)#saving and editing csv file
             stop = time.time()
             print (stop-start), "seconds"
             sleep(0.5)
@@ -98,15 +85,12 @@ def captureImageLoop():
             print("Waiting for button press")
             sleep(0.5)
 
-def editCsv(picture,steer): 
-    with open('/media/pi/RASPBERRY/data.csv','a')as file:
-        writer = csv.writer(file)
-        writer.writerow([picture, steer])
+
         
 if __name__ == "__main__":
     init_GPIO()
     initCamera()
-    init_serial()
+    steering.init_serial()
     GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, GPIO.HIGH)
     captureImageLoop()
     GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, GPIO.LOW)
