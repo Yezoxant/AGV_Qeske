@@ -9,7 +9,7 @@ class csv_Editor():
         self.fileopen = False
     
     def open(self):
-        self.file = open(csvfile, edittype)
+        self.file = open(self.csvfile, self.edittype)
 
     def checkFolder(self, path):
         files = os.listdir(path)
@@ -22,4 +22,6 @@ class csv_Editor():
         writer.writerow([picture, throttle, steer])
 
     def close(self):
-        self.file.close()
+        if not self.file.closed:
+            self.file.close()
+            print('file is closed')

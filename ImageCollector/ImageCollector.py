@@ -48,7 +48,6 @@ def button_pushed(*args, **kwargs):
         editor.open() # Open csv file
     else:
         GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)  # Turn led on/off
-        editor.close() # Close csv file
 
 
 
@@ -98,10 +97,9 @@ def captureImageLoop():
             print(execTime)
 
         while not save_data_active: #Loop during pause status
-            print(editor.fileopen)
-            if editor.fileopen == True:
-                editor.initfile(csvfile,edittype)
             print("Waiting for button press")
+            if hasattr(editor,'file'):
+                editor.close()
             sleep(0.5)
 
 
