@@ -1,4 +1,6 @@
 import serial
+import re
+from time import sleep
 
 def init_serial():
     global ser
@@ -10,9 +12,14 @@ def get_motion():
     ser.flush()
     g = ser.write(cmd_bytes)
     response = ''
-    sleep(0.1)
+    sleep(0.05)
 
     while ser.in_waiting > 0:
         response += ser.read().decode('utf-8')
-    res = re.search("(?:.+:)(.+)",response)
-    return res.group(1)
+    
+    res = re.search("(\d+|-\d+):(\d+|-\d+)",response)
+    throttle = str(res.group(1))
+    steering = str(res.group(2))
+    print(throttle, "res1")
+    print(steering, "res2")
+    return (throttle,steering)

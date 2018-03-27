@@ -1,18 +1,17 @@
 from time import sleep,strftime
-from Capture_Steering import init_serial
 from picamera import PiCamera
 import RPi.GPIO as GPIO
 import Capture_Steering as steering
-import csv_editor as editor
-import re
+from csv_editor import csv_Editor
 import time
+import os
 
 
 #constants for pin numbers
-INPUT_SAVE_DATA_PIN = 3
+INPUT_SAVE_DATA_PIN = 11
 OUTPUT_PROGRAM_RUNNING_PIN = 5
 OUTPUT_ERROR_PIN = 7
-OUTPUT_SAVE_DATA_PIN = 11
+OUTPUT_SAVE_DATA_PIN = 3
 
 save_data_active = False #global var for datasaving status
 
@@ -28,8 +27,7 @@ def init_GPIO():
     GPIO.add_event_detect(INPUT_SAVE_DATA_PIN, GPIO.RISING)
     GPIO.add_event_callback(INPUT_SAVE_DATA_PIN,button_pushed)
 
-
-
+#initialize camera
 def initCamera():
     global camera
     camera = PiCamera()
@@ -42,46 +40,67 @@ def initCamera():
 
 def button_pushed(*args, **kwargs):
     #Callback function when save data button pressed
-
     global save_data_active
     save_data_active = not save_data_active  # If button pressed switch mode
-    print("Button pushed, savedat ="+str(save_data_active))
+    print("Button pushed, savedat ="+str(save_data_active)) # Print save_data_active is true or false
     if save_data_active:
         GPIO.output(OUTPUT_SAVE_DATA_PIN,GPIO.HIGH) #Turn led on/off
+        editor.open() # Open csv file
     else:
         GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)  # Turn led on/off
+        editor.close() # Close csv file
 
 
 
 def captureImageLoop():
+    # Create variables
     global save_data_active
     global path
-    global image_counter
+    global editor
     path = '/media/pi/RASPBERRY/CapturedData/'
     csvfile = '/media/pi/RASPBERRY/data.csv'
     edittype = 'a'
-
-    editor.checkFolder()
+    editor = csv_Editor(csvfile,edittype)
+    image_counter = editor.checkFolder(path)
 
     while True:
         while save_data_active:
-            timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
             start = time.time()
-            picturename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
-            picturesave = os.path.join(path,filename)
             print("Entered imagecapture loop")
-            steerinput = steering.get_motion()
-            if steerinput == None:
+            timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
+            picturename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
+            test = time.time()
+            print((test-start),"seconds: test loop1")
+            picturesave = os.path.join(path,picturename)
+
+            motion = steering.get_motion()
+            throttle, steeringinput = motion
+            test = time.time()
+            print((test-start),"seconds: test loop2")
+
+            if motion == None:
                 GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
                 break
             else:
                 camera.capture(picturesave)
                 image_counter += 1
-                editor.editCsv(picturename,steerinput,edittype,csvfile)#saving and editing csv file
+                test = time.time()
+                print((test-start),"seconds: test loop3")
+                editor.editCsv(picturename,throttle, steeringinput)#editing csv file
+                test = time.time()
+                print((test-start),"seconds: test loop4")
+
             stop = time.time()
-            print (stop-start), "seconds"
-            sleep(0.5)
+            execTime = stop - start
+            print((stop-start),"seconds: end loop")
+            while execTime < 1:
+                execTime = time.time()-start
+            print(execTime)
+
         while not save_data_active: #Loop during pause status
+            print(editor.fileopen)
+            if editor.fileopen == True:
+                editor.initfile(csvfile,edittype)
             print("Waiting for button press")
             sleep(0.5)
 
