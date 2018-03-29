@@ -1,6 +1,7 @@
 import serial
 import re
 from time import sleep
+import logging
 
 def init_serial():
     global ser
@@ -12,8 +13,7 @@ def get_motion():
     ser.flush()
     g = ser.write(cmd_bytes)
     response = ''
-    sleep(0.05)
-
+    sleep(0.05) #delay to give the driver board some time to respond
     while ser.in_waiting > 0:
         response += ser.read().decode('utf-8')
     

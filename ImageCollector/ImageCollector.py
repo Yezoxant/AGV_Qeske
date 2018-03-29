@@ -3,8 +3,7 @@ from picamera import PiCamera
 import RPi.GPIO as GPIO
 import Capture_Steering as steering
 from csv_editor import csv_Editor
-import time
-import os
+import time, logging, os
 
 
 #constants for pin numbers
@@ -102,13 +101,26 @@ def captureImageLoop():
                 editor.close()
             sleep(0.5)
 
+def setLogger():
+    logger = logging.getLogger('ImageCollector')
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler('ImageCollectorLog.log')
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fh.setFormatter(formatter)
+    fh.setLevel(logging.DEBUG)
+    logger.addHandler(fh)
+    logger.info("logger setup done")
 
         
 if __name__ == "__main__":
+    setLogger()
     init_GPIO()
+    logger.info("initGPIO done")
     initCamera()
+    logger.info("initCamera done")
     steering.init_serial()
+    logger.info("steering init_serial done")
     GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, GPIO.HIGH)
+    logger.info("started captureImageloop")
     captureImageLoop()
-    GPIO.output(OUTPUT_PROGRAM_RUNNING_PIN, GPIO.LOW)
 
