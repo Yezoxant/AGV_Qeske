@@ -9,8 +9,8 @@ import time, logging, os
 #constants for pin numbers
 INPUT_SAVE_DATA_PIN = 11
 OUTPUT_PROGRAM_RUNNING_PIN = 5
-OUTPUT_ERROR_PIN = 7
-OUTPUT_SAVE_DATA_PIN = 3
+OUTPUT_ERROR_PIN = 15
+OUTPUT_SAVE_DATA_PIN = 13
 
 save_data_active = False #global var for datasaving status
 
@@ -102,9 +102,10 @@ def captureImageLoop():
             sleep(0.5)
 
 def setLogger():
+    global logger
     logger = logging.getLogger('ImageCollector')
     logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler('ImageCollectorLog.log')
+    fh = logging.FileHandler('ImageCollectorLog.log',mode='w')
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     fh.setFormatter(formatter)
     fh.setLevel(logging.DEBUG)

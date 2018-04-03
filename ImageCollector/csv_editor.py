@@ -27,9 +27,9 @@ class csv_Editor():
     def editCsv(self, picture, throttle, steer):
         writer = csv.writer(self.file)
         writer.writerow([picture, throttle, steer])
-        self.logging.info('Edited csv:%s,%s,%s',str(picture),str(throttle),str(steer))
+        self.logger.info('Edited csv:%s,%s,%s',str(picture),str(throttle),str(steer))
 
     def close(self):
         if not self.file.closed:
             self.file.close()
-            self.logging.info('closed csv')
+            self.logger.info('closed csv')
