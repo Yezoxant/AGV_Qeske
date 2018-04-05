@@ -25,8 +25,6 @@ def get_motion():
         steering_logger.info("regex found result:%s",str(res.groups()))
         throttle = str(res.group(1))
         steering = str(res.group(2))
-        print(throttle, "res1")
-        print(steering, "res2")
         return (throttle,steering)
     else:
         steering_logger.error("Could not find motion info in response")

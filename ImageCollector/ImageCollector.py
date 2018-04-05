@@ -7,8 +7,8 @@ import time, logging, os
 
 
 #constants for pin numbers
-INPUT_SAVE_DATA_PIN = 11
-OUTPUT_PROGRAM_RUNNING_PIN = 5
+REMOTE_PIN = 11
+OUTPUT_PROGRAM_RUNNING_PIN = 12
 OUTPUT_ERROR_PIN = 15
 OUTPUT_SAVE_DATA_PIN = 13
 
@@ -18,19 +18,22 @@ save_data_active = False #global var for datasaving status
 
 def init_GPIO():
     GPIO.setmode(GPIO.BOARD) #BOARD pin numbering
-    GPIO.setup(INPUT_SAVE_DATA_PIN,GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #Use pin3 as input, pulldown so default state always 0
+    GPIO.setup(REMOTE_PIN,GPIO.IN, pull_up_down=GPIO.PUD_DOWN) #Use pin3 as input, pulldown so default state always 0
     GPIO.setup(OUTPUT_PROGRAM_RUNNING_PIN,GPIO.OUT,initial=GPIO.LOW) #Use pin5 as output for feedback LED:Program running
     GPIO.setup(OUTPUT_ERROR_PIN,GPIO.OUT,initial=GPIO.LOW) #Use pin7 as output for feedback LED:Error
     GPIO.setup(OUTPUT_SAVE_DATA_PIN,GPIO.OUT,initial=GPIO.LOW) #Use pin11 as output for feedback LED:Saving data
 
-    GPIO.add_event_detect(INPUT_SAVE_DATA_PIN, GPIO.RISING)
-    GPIO.add_event_callback(INPUT_SAVE_DATA_PIN,button_pushed)
+    GPIO.add_event_detect(REMOTE_PIN, GPIO.RISING)
+    GPIO.add_event_callback(REMOTE_PIN,button_pushed)
 
 #initialize camera
 def initCamera():
     global camera
     camera = PiCamera()
-    camera.resolution = (480, 320)
+    camera.resolution = (480, 270)
+    camera.vflip = True
+    camera.hflip = True
+    camera.exposure_mode = 'sports'
     camera.start_preview()
     sleep(2)
     camera.stop_preview()
@@ -63,23 +66,27 @@ def captureImageLoop():
 
     while True:
         while save_data_active:
+            GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.HIGH)
             start = time.time()
             print("Entered imagecapture loop")
             timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
-            picturename = 'img({})_{}.jpeg'.format(image_counter,timestamp)
+            picturename = 'img({})_{}.jpeg'.format(timestamp,image_counter)
             test = time.time()
             print((test-start),"seconds: test loop1")
             picturesave = os.path.join(path,picturename)
 
             motion = steering.get_motion()
-            throttle, steeringinput = motion
             test = time.time()
             print((test-start),"seconds: test loop2")
 
             if motion == None:
-                GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
+                for i in range(5):
+                    GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
+                    sleep(0.5)
+                    GPIO.output(OUTPUT_ERROR_PIN, GPIO.LOW)
                 break
             else:
+                throttle, steeringinput = motion
                 camera.capture(picturesave)
                 image_counter += 1
                 test = time.time()
@@ -91,11 +98,12 @@ def captureImageLoop():
             stop = time.time()
             execTime = stop - start
             print((stop-start),"seconds: end loop")
-            while execTime < 1:
+            while execTime < 0.75:
                 execTime = time.time()-start
             print(execTime)
 
-        while not save_data_active: #Loop during pause status
+        while not save_data_active: #Loop during pause status.
+            GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)
             print("Waiting for button press")
             if hasattr(editor,'file'):
                 editor.close()
