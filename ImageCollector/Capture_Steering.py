@@ -23,8 +23,11 @@ def get_motion():
     res = re.search("(\d+|-\d+):(\d+|-\d+)",response)
     if res is not None:
         steering_logger.info("regex found result:%s",str(res.groups()))
-        throttle = str(res.group(1))
-        steering = str(res.group(2))
+        tempthrottle = str(res.group(1))
+        tempsteering = str(res.group(2))
+        throttle = int(tempthrottle) / 100
+        steering = int(tempsteering) / 100
+        print(throttle, steering)
         return (throttle,steering)
     else:
         steering_logger.error("Could not find motion info in response")
