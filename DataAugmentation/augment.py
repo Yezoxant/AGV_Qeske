@@ -1,10 +1,7 @@
-import cv2,time
-import csv
+import cv2
+import csv,time
 import numpy as np
-
-collected_data_path = "./tmp/elephant/elephant.jpg"
-output_data_path = "/tmp/"
-
+import os
 
 def preprocessImage(image):
     shape = image.shape
@@ -40,17 +37,37 @@ def preprocess_image_file_train(line_data):
 
     return image, y_steer
 
+
+
+
 class AugmentDataset():
 
     def __init__(self,csv_path):
         self.csv_path = csv_path
-        sef.images = []
+        self.images = []
+
         with open(csv_path,"r") as csv_file:
             ff = csv.reader(csv_file)
             for row in ff:
-                self.images += cv2.imread(row[0])
+                self.images.append(cv2.imread(row[0])) # Load all base images into the object
 
-    def augment_brightness_camera_images(image):
+    def run_augmentation(self,output_folder):
+        os.mkdir(output_folder)
+        os.chdir(output_folder)
+        count = 0
+        for image in self.images:
+
+            out_img = self.add_random_shadow(image)
+            cv2.imwrite("image"+str(count)+".jpeg",out_img)
+            count += 1
+
+        for image in self.images:
+
+            out_img = self.augment_brightness_camera_images(image)
+            cv2.imwrite("image"+str(count)+".jpeg",out_img)
+            count += 1
+
+    def augment_brightness_camera_images(self,image):
         image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
         image1 = np.array(image1, dtype=np.float64)
         random_bright = .5 + np.random.uniform()
@@ -60,7 +77,7 @@ class AugmentDataset():
         image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
         return image1
 
-    def trans_image(image, steer, trans_range):
+    def trans_image(self,image, steer, trans_range):
         # Translation
         tr_x = trans_range * np.random.uniform() - trans_range / 2
         steer_ang = steer + tr_x / trans_range * 2 * .2
@@ -71,7 +88,7 @@ class AugmentDataset():
 
         return image_tr, steer_ang
 
-    def add_random_shadow(image):
+    def add_random_shadow(self,image):
         top_y = 320 * np.random.uniform()
         top_x = 0
         bot_x = 160
@@ -91,19 +108,15 @@ class AugmentDataset():
             else:
                 image_hls[:, :, 1][cond0] = image_hls[:, :, 1][cond0] * random_bright
         image = cv2.cvtColor(image_hls, cv2.COLOR_HLS2RGB)
-        print("xytop=0:", top_y, "\nxybot=160:", bot_y)
         return image
 
 
+
+
 if __name__ == "__main__":
-    # img = cv2.imread("idunno.jpeg",1)
-    # cv2.imshow("input",img)
-    # cv2.waitKey(0)
-    # out_img = trans_image(img,0.3,1)
-    # cv2.imshow("output",out_img)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    set1 = AugmentDataset()
+    os.chdir("dataset_1/")
+    data1 = AugmentDataset("data.csv")
+    data1.run_augmentation("output_1")
 
 
 
