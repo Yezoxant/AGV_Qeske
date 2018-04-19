@@ -47,28 +47,63 @@ class AugmentDataset():
         self.images = []
 
         with open(csv_path,"r") as csv_file:
-            ff = csv.reader(csv_file)
-            for row in ff:
-                self.images.append(cv2.imread(row[0])) # Load all base images into the object
+            reader = csv.reader(csv_file)
+            for row in reader:
+                # Load all source images and steering inputs. images is a list of lists [[cv2 img_matrix,throttle,steering],...]
+                self.images.append([cv2.imread(row[0]),row[1],row[2]])
 
-    def run_augmentation(self,output_folder):
-        os.mkdir(output_folder)
+    def run_augmentation(self,output_folder, brightness = False, shadows = False, horizontal_translate = False, hflip = False, blur = False):
+
+        os.mkdir(output_folder)#TODO:add handling when folder already existing
         os.chdir(output_folder)
+        augdata_csv = open("augdata.csv", "w")
+        writer = csv.writer(augdata_csv)
         count = 0
-        for image in self.images:
 
-            out_img = self.add_random_shadow(image)
-            cv2.imwrite("image"+str(count)+".jpeg",out_img)
-            count += 1
 
-        for image in self.images:
+        if shadows:
+            for image in self.images:
 
-            out_img = self.augment_brightness_camera_images(image)
-            cv2.imwrite("image"+str(count)+".jpeg",out_img)
-            count += 1
+                out_img = self.add_random_shadow(image[0])
+                img_name = "image" + str(count) + ".jpeg"
+                cv2.imwrite(img_name,out_img)
+                writer.writerow([img_name,image[1],image[2]])
+                count += 1
+
+        if brightness:
+            for image in self.images:
+
+                out_img = self.augment_brightness_camera_images(image[0])
+                img_name = "image"+str(count)+".jpeg"
+                cv2.imwrite(img_name,out_img)
+                writer.writerow([img_name, image[1], image[2]])
+                count += 1
+
+        if hflip:
+
+            for image in self.images:
+
+                out_img = self.augment_brightness_camera_images(image[0])
+                img_name = "image"+str(count)+".jpeg"
+                cv2.imwrite(img_name,out_img)
+                writer.writerow([img_name, image[1], float(image[2])*-1]) #invert steering
+                count += 1
+
+        if horizontal_translate:
+            for image in self.images:
+                out_img = self.trans_image(image[0],image[2])
+                img_name = "image" + str(count) + ".jpeg"
+                cv2.imwrite(img_name, out_img)
+                writer.writerow([img_name, image[1], float(image[2])*-1])
+                count += 1
+        if blur:
+            pass
+
+        augdata_csv.close()
+
 
     def augment_brightness_camera_images(self,image):
-        image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        image1 = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
         image1 = np.array(image1, dtype=np.float64)
         random_bright = .5 + np.random.uniform()
         image1[:, :, 2] = image1[:, :, 2] * random_bright
@@ -93,7 +128,7 @@ class AugmentDataset():
         top_x = 0
         bot_x = 160
         bot_y = 320 * np.random.uniform()
-        image_hls = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
+        image_hls = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
         shadow_mask = 0 * image_hls[:, :, 1]
         X_m = np.mgrid[0:image.shape[0], 0:image.shape[1]][0]
         Y_m = np.mgrid[0:image.shape[0], 0:image.shape[1]][1]
@@ -110,13 +145,17 @@ class AugmentDataset():
         image = cv2.cvtColor(image_hls, cv2.COLOR_HLS2RGB)
         return image
 
+    def hflip(self,image):
+        image_yuv = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
+        out_img = cv2.flip(image_yuv,0)
+        return out_img
 
 
 
 if __name__ == "__main__":
     os.chdir("dataset_1/")
     data1 = AugmentDataset("data.csv")
-    data1.run_augmentation("output_1")
+    data1.run_augmentation("output_1",brightness=True,shadows=True,hflip=True)
 
 
 
