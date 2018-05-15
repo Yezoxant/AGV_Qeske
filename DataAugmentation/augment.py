@@ -18,6 +18,10 @@ class AugmentDataset():
                 # Load all source images and steering inputs. images is a list of lists [[[cv2 img_matrix],throttle,steering],...]
                 self.images.append([cv2.imread(row[0]),row[1],row[2]])
 
+        if self.images == None:
+            print("No images imported")
+
+
     def run_augmentation(self,output_folder, brightness = False, shadows = False, horizontal_translate = False, hflip = False, blur = False):
 
         os.mkdir(output_folder)
@@ -26,11 +30,11 @@ class AugmentDataset():
         writer = csv.writer(augdata_csv)
         count = 0
 
-        base_chance = 2 #chance of applying an augment is 1/base_chance
+        base_chance = 10 #chance of applying an augment is 1/base_chance
         if shadows:
 
             for image in self.images:
-                if np.random.randint(1, base_chance) == 1:
+                if np.random.randint(0, base_chance) == 0:
                     out_img = self.add_random_shadow(image[0])
                     img_name = "image" + str(count) + ".jpeg"
                     cv2.imwrite(img_name,out_img)
@@ -40,7 +44,7 @@ class AugmentDataset():
         if brightness:
 
             for image in self.images:
-                if np.random.randint(1, base_chance) == 1:
+                if np.random.randint(0, base_chance) == 0:
                     out_img = self.augment_brightness_camera_images(image[0])
                     img_name = "image"+str(count)+".jpeg"
                     cv2.imwrite(img_name,out_img)
@@ -50,7 +54,7 @@ class AugmentDataset():
         if hflip:
 
             for image in self.images:
-                if np.random.randint(1, base_chance) == 1:
+                if np.random.randint(0, base_chance) == 0:
                     out_img = self.augment_brightness_camera_images(image[0])
                     img_name = "image"+str(count)+".jpeg"
                     cv2.imwrite(img_name,out_img)
@@ -60,17 +64,28 @@ class AugmentDataset():
         if horizontal_translate:
 
             for image in self.images:
-                if np.random.randint(1, base_chance) == 1:
+                if np.random.randint(0, base_chance) == 0:
                     out_img = self.trans_image(image[0],image[2],0.01)
                     img_name = "image" + str(count) + ".jpeg"
                     cv2.imwrite(img_name, out_img)
                     writer.writerow([img_name, image[1], float(image[2])*-1])
                     count += 1
         if blur:
-            pass
+            for image in self.images:
+                if np.random.randint(0, base_chance) == 0:
+                    out_img = self.blur_image(image[0])
+                    img_name = "image" + str(count) + ".jpeg"
+                    cv2.imwrite(img_name, out_img)
+                    writer.writerow([img_name, image[1], float(image[2])*-1])
+                    count += 1
 
         augdata_csv.close()
 
+    def blur_image(self,image):
+        image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        kernelsize = np.random.randint(3,6)
+        image_out = cv2.blur(image1,(kernelsize, kernelsize))
+        return image_out
 
     def augment_brightness_camera_images(self,image):
         image1 = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
@@ -128,12 +143,13 @@ class AugmentDataset():
 
 
 if __name__ == "__main__":
-    os.chdir("dataset_1/")
+    os.chdir("Dataset_1/")
     data1 = AugmentDataset("data.csv")
     if os.path.isdir("output_1"):
         print("removing old output dir..")
         shutil.rmtree("output_1",ignore_errors=True)
-    data1.run_augmentation("output_1",brightness=False,shadows=False,hflip=False,horizontal_translate=True)
+    data1.run_augmentation("output_1",brightness=True,shadows=True,hflip=True,horizontal_translate=False,blur = True)
+
 
 
 
