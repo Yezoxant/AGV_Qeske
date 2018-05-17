@@ -3,9 +3,9 @@ import numpy as np
 import cv2
 import os
 
+images = np.array()
+steering = np.array()
 
-input = []
-target = []
 csv_file_name = "augdata.csv"
 with open(csv_file_name) as csv_file:
     reader = csv.reader(csv_file)
@@ -16,5 +16,5 @@ with open(csv_file_name) as csv_file:
         img = img[:,:,:] - 128
         img = img[:,:,:] *(1/128)
 
-        input.append(img)
-        target.append(ang)
+        images.append(img)
+        steering.append(ang)
