@@ -5,8 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{b2d4484b-bf47-43e3-ac75-58cf98388d3e}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>
-    </StartupFile>
+    <StartupFile>Model.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
