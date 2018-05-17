@@ -5,7 +5,8 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{b2d4484b-bf47-43e3-ac75-58cf98388d3e}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>sentdex_tutorial.py</StartupFile>
+    <StartupFile>
+    </StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,7 +20,13 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="sentdex_tutorial.py" />
+    <Compile Include="augment.py" />
+    <Compile Include="csv_reader.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Model.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.6" />
