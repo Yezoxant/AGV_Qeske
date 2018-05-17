@@ -27,7 +27,7 @@ class AugmentDataset():
 
         os.mkdir(output_folder)
         os.chdir(output_folder)
-        augdata_csv = open("augdata.csv", "w")
+        augdata_csv = open("augdata.csv", 'a',newline='')
         writer = csv.writer(augdata_csv)
         count = 0
 
@@ -93,8 +93,10 @@ class AugmentDataset():
 
     def save_image(self,name,image):
 
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-        cv2.imwrite(name, image)
+        cropped_image = image[70:200, 0:480] #imsize is 480x270, crop top and botton 70 pixels
+        resized_image = cv2.resize(cropped_image,(200,66))
+        hsv_image = cv2.cvtColor(resized_image, cv2.COLOR_RGB2HSV)
+        cv2.imwrite(name, hsv_image)
 
     def blur_image(self,image):
         kernelsize = np.random.randint(3,6)
