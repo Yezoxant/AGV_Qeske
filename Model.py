@@ -74,7 +74,25 @@ def normalize_input(x):
     return (x - 128.) / 128.
 
 def data_setup():
+    os.chdir("DataAugmentation/Dataset_1/output_1/")
+    images = []
+    steering = []
 
+    csv_file_name = "augdata.csv"
+    with open(csv_file_name) as csv_file:
+        reader = csv.reader(csv_file)
+        for row in reader:
+            img = cv2.imread(row[0])
+            ang = row[2]
+            img = np.array(img, dtype=np.float64)
+            img = img[:,:,:] - 128
+            img = img[:,:,:] *(1/128)
+            images.append(img)
+            steering.append(ang)
+
+    images = np.array(images)
+    steering = np.array(steering)
+    npdata=(images,steering)
     return npdata
 
 def main():
@@ -89,7 +107,8 @@ def main():
 
 
     npdata = data_setup()
-    images = npdata
+    images = npdata[0]
+    steering = npdata[1]
 
     callbacks = [EarlyStopping(monitor='val_loss', patience=5, verbose=0), 
                     ModelCheckpoint('model.h5', monitor='val_loss', verbose=0, save_best_only=True,save_weights_only=True,mode='min')]

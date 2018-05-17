@@ -21,7 +21,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="augment.py" />
-    <Compile Include="load_images.py" />
     <Compile Include="Model.py">
       <SubType>Code</SubType>
     </Compile>
