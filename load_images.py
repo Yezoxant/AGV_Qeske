@@ -3,8 +3,11 @@ import numpy as np
 import cv2
 import os
 
-images = np.array()
-steering = np.array()
+
+
+os.chdir("DataAugmentation/Dataset_1/output_1/")
+images = []
+steering = []
 
 csv_file_name = "augdata.csv"
 with open(csv_file_name) as csv_file:
@@ -18,3 +21,8 @@ with open(csv_file_name) as csv_file:
 
         images.append(img)
         steering.append(ang)
+
+images = np.array(images)
+steering = np.array(steering)
+print(images)
+print(steering)
