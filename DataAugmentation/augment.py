@@ -31,7 +31,7 @@ class AugmentDataset():
         writer = csv.writer(augdata_csv)
         count = 0
 
-        base_chance = 2 #chance of applying an augment is 1/base_chance
+        base_chance = 1 #chance of applying an augment is 1/base_chance
 
         for image in self.images:
             img = image[0]
@@ -43,6 +43,8 @@ class AugmentDataset():
         if shadows:
 
             for image in self.images:
+                if image[2] == "0.0":
+                    continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.add_random_shadow(image[0])
                     img_name = "image" + str(count) + ".jpeg"
@@ -53,6 +55,8 @@ class AugmentDataset():
         if brightness:
 
             for image in self.images:
+                if image[2] == "0.0":
+                    continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.augment_brightness_camera_images(image[0])
                     img_name = "image"+str(count)+".jpeg"
@@ -63,6 +67,8 @@ class AugmentDataset():
         if hflip:
 
             for image in self.images:
+                if image[2] == "0.0":
+                    continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.hflip(image[0])
                     img_name = "image"+str(count)+".jpeg"
@@ -73,6 +79,7 @@ class AugmentDataset():
         if horizontal_translate:
 
             for image in self.images:
+
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.trans_image(image[0],image[2],0.01)
                     img_name = "image" + str(count) + ".jpeg"
@@ -81,6 +88,7 @@ class AugmentDataset():
                     count += 1
         if blur:
             for image in self.images:
+
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.blur_image(image[0])
                     img_name = "image" + str(count) + ".jpeg"
@@ -113,8 +121,6 @@ class AugmentDataset():
         image1 = np.array(image1, dtype=np.uint8)
         image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
         return image1
-
-
 
     def trans_image(self,image, steer, trans_range):
 
