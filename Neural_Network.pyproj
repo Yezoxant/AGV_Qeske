@@ -23,9 +23,19 @@
     <Compile Include="Model.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="run.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.6" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ImageCollector\ImageCollector.pyproj">
+      <Name>ImageCollector</Name>
+      <Project>{477cdebc-ba9d-49da-9a27-93c477316b88}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
