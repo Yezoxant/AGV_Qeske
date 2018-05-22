@@ -73,13 +73,14 @@ def build_cnn():
     return model
 
 def data_setup():
-    os.chdir("GrasmatBlauwemat_1/")
+    os.chdir("RechteLijnen_aug/")
     images = []
     steering = []
 
     csv_file_name = "augdata.csv"
     with open(csv_file_name) as csv_file:
         reader = csv.reader(csv_file)
+
         for row in reader:
             img = cv2.imread(row[0])
             ang = row[2]
@@ -108,7 +109,6 @@ def main():
     images = npdata[0]
     steering = npdata[1]
     os.chdir("../")
-    os.chdir("trainedmodels/")
     #save model into new file every epoch
     callbacks = [ModelCheckpoint('model_sim_{epoch:02d}.h5', monitor='val_loss', verbose=0, save_best_only=False,save_weights_only=True,mode='min')]
     #run the model
@@ -119,7 +119,9 @@ def main():
               ,verbose=1
               ,callbacks=callbacks,
               validation_split=0.1)
+    model.save("full_model.h5")
 
+    #Testing model
 
 
 if __name__ == '__main__':

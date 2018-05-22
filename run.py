@@ -9,7 +9,7 @@ from csv_editor import csv_Editor
 
 
 def data_setup():
-    os.chdir("testdata/")
+    #os.chdir("testdata/")
     #create variable lists
     images = []
     steering = []
