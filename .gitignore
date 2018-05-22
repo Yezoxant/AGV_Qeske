@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 /output_1
 /model.h5
+/pretrained/model.h5

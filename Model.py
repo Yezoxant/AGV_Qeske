@@ -3,10 +3,9 @@ import numpy as np
 import csv
 import cv2
 #import random
-import matplotlib as mpl
 #import matplotlib.image as mpimg
 mpl.use('Agg')
-#import matplotlib.pyplot as plt
+
 import argparse
 import os
 #import time
@@ -65,7 +64,7 @@ def build_cnn():
     model = Model(input=img_input, output=y)
     for layer in model.layers[:3]:
         layer.trainable = False
-    model.compile(optimizer=Adam(lr=1e-4), loss = 'mse', metrics=['accuracy'])
+    model.compile(optimizer=Adam(lr=1e-4), loss = 'mse')
     model.load_weights("model.h5")
 
     return model
@@ -116,6 +115,8 @@ def main():
               ,verbose=1
               ,callbacks=callbacks,
               validation_split=0.1)
+
+
 
 if __name__ == '__main__':
     main()
