@@ -105,8 +105,8 @@ def main():
     images = npdata[0]
     steering = npdata[1]
     os.chdir("../")
-
-    callbacks = [ModelCheckpoint('model.h5', monitor='val_loss', verbose=0, save_best_only=True,save_weights_only=True,mode='min')]
+    #save model into new file every epoch
+    callbacks = [ModelCheckpoint('model_sim_{epoch:02d}..h5', monitor='val_loss', verbose=0, save_best_only=False,save_weights_only=True,mode='min')]
     #run the model
     model.fit(images,
               steering,
