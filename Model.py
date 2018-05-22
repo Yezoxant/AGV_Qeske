@@ -4,7 +4,7 @@ import csv
 import cv2
 #import random
 #import matplotlib.image as mpimg
-mpl.use('Agg')
+#mpl.use('Agg')
 
 import argparse
 import os
@@ -49,28 +49,31 @@ def build_cnn():
     # Flatten
     y = Flatten()(x)
 
-    # FC 1
-    y = Dense(100, activation='elu', kernel_initializer='he_normal')(y)
+    #FC1 added after reviewing
+    y = Dense(1164, activation='elu', kernel_initializer='he_normal')(y)
 
     # FC 2
-    y = Dense(50, activation='elu', kernel_initializer='he_normal')(y)
+    y = Dense(100, activation='elu', kernel_initializer='he_normal')(y)
 
     # FC 3
+    y = Dense(50, activation='elu', kernel_initializer='he_normal')(y)
+
+    # FC 4
     y = Dense(10, activation='elu', kernel_initializer='he_normal')(y)
 
     # Output Layer
     y = Dense(1, kernel_initializer='he_normal')(y)
 
     model = Model(input=img_input, output=y)
-    for layer in model.layers[:3]:
-        layer.trainable = False
+    #for layer in model.layers[:3]:
+    #    layer.trainable = False
     model.compile(optimizer=Adam(lr=1e-4), loss = 'mse')
-    model.load_weights("model.h5")
+    #model.load_weights("model.h5")
 
     return model
 
 def data_setup():
-    os.chdir("output_1/")
+    os.chdir("GrasmatBlauwemat_1/")
     images = []
     steering = []
 
@@ -105,8 +108,9 @@ def main():
     images = npdata[0]
     steering = npdata[1]
     os.chdir("../")
+    os.chdir("trainedmodels/")
     #save model into new file every epoch
-    callbacks = [ModelCheckpoint('model_sim_{epoch:02d}..h5', monitor='val_loss', verbose=0, save_best_only=False,save_weights_only=True,mode='min')]
+    callbacks = [ModelCheckpoint('model_sim_{epoch:02d}.h5', monitor='val_loss', verbose=0, save_best_only=False,save_weights_only=True,mode='min')]
     #run the model
     model.fit(images,
               steering,
