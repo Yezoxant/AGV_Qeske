@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import Capture_Steering as steering
 from csv_editor import csv_Editor
 import time, logging, os
+import numpy as np
 
 
 #constants for pin numbers
@@ -30,10 +31,11 @@ def init_GPIO():
 def initCamera():
     global camera
     camera = PiCamera()
-    camera.resolution = (480, 270)
+    camera.resolution = (480, 272)
     camera.vflip = True
     camera.hflip = True
     camera.exposure_mode = 'sports'
+    camera.framerate = 24
     camera.start_preview()
     sleep(2)
     camera.stop_preview()
@@ -73,7 +75,8 @@ def captureImageLoop():
             picturename = 'img({})_{}.jpeg'.format(timestamp,image_counter)
             test = time.time()
             print((test-start),"seconds: test loop1")
-            picturesave = os.path.join(path,picturename)
+            #picturesave = os.path.join(path,picturename)
+            output = np.empty((272,480,3), dtype=np.uint8)
 
             motion = steering.get_motion()
             test = time.time()
@@ -87,7 +90,7 @@ def captureImageLoop():
                 break
             else:
                 throttle, steeringinput = motion
-                camera.capture(picturesave, use_video_port=True)
+                camera.capture(output, 'rgb', use_video_port=True)
                 image_counter += 1
                 test = time.time()
                 print((test-start),"seconds: test loop3")
