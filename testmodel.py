@@ -44,7 +44,8 @@ for p in predictions:
     print(p)
 print(steering)
 
-pyplot.plot(range(len(images)),l_predictions,'ro')
-pyplot.plot(range(len(images)),steering,'bo')
+pyplot.plot(range(len(images)),l_predictions,'ro',label='prediction')
+pyplot.plot(range(len(images)),steering,'bo',label='actual')
 pyplot.savefig("modeltest")
+pyplot.legend(bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
 cv2.waitKey(0)
