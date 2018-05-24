@@ -33,7 +33,7 @@ def build_cnn():
 
     # Layer 1
     x = Convolution2D(24, 5, 5, activation='elu', subsample=(2, 2), border_mode='valid', init='he_normal')(img_input)
-    
+
     # Layer 2
     x = Convolution2D(36, 5, 5, activation='elu', subsample=(2, 2), border_mode='valid', init='he_normal')(x)
 
@@ -98,10 +98,11 @@ def data_setup():
 def main():
     #arguments to change for running
     parser = argparse.ArgumentParser(prog="Autonomous driving cart")
+
     parser.add_argument('--batch_size', type=int, default=64, help='training batch size')
     parser.add_argument('--epoch', type=int, default=10, help='# of training epoch')
     args = parser.parse_args()
-    
+
 
     model = build_cnn()
     #gather all the data
