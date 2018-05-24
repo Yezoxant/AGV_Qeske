@@ -87,7 +87,7 @@ def captureImageLoop():
                 break
             else:
                 throttle, steeringinput = motion
-                camera.capture(picturesave)
+                camera.capture(picturesave, use_video_port=True)
                 image_counter += 1
                 test = time.time()
                 print((test-start),"seconds: test loop3")
