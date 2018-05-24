@@ -3,14 +3,15 @@ import csv,time
 import numpy as np
 import os
 import shutil
+import argparse
 
 
 class AugmentDataset():
 
-    def __init__(self,csv_path):
+    def __init__(self,csv_path, chance = 1):
         self.csv_path = csv_path
         self.images = []
-
+        self.base_chance = chance
 
         with open(csv_path,"r") as csv_file:
             reader = csv.reader(csv_file)
@@ -31,7 +32,7 @@ class AugmentDataset():
         writer = csv.writer(augdata_csv)
         count = 0
 
-        base_chance = 2 #chance of applying an augment is 1/base_chance
+        base_chance = self.base_chance #chance of applying an augment is 1/base_chance
 
         for image in self.images:
             img = image[0]
@@ -43,6 +44,8 @@ class AugmentDataset():
         if shadows:
 
             for image in self.images:
+                if image[2] == "0.0":
+                    continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.add_random_shadow(image[0])
                     img_name = "image" + str(count) + ".jpeg"
@@ -53,6 +56,9 @@ class AugmentDataset():
         if brightness:
 
             for image in self.images:
+                if image[2] == "0.0":
+                    print("0 steer skipped")
+                    continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.augment_brightness_camera_images(image[0])
                     img_name = "image"+str(count)+".jpeg"
@@ -63,6 +69,8 @@ class AugmentDataset():
         if hflip:
 
             for image in self.images:
+                if image[2] == "0.0":
+                    continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.hflip(image[0])
                     img_name = "image"+str(count)+".jpeg"
@@ -73,6 +81,7 @@ class AugmentDataset():
         if horizontal_translate:
 
             for image in self.images:
+
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.trans_image(image[0],image[2],0.01)
                     img_name = "image" + str(count) + ".jpeg"
@@ -81,6 +90,7 @@ class AugmentDataset():
                     count += 1
         if blur:
             for image in self.images:
+
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.blur_image(image[0])
                     img_name = "image" + str(count) + ".jpeg"
@@ -113,8 +123,6 @@ class AugmentDataset():
         image1 = np.array(image1, dtype=np.uint8)
         image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
         return image1
-
-
 
     def trans_image(self,image, steer, trans_range):
 
@@ -157,13 +165,20 @@ class AugmentDataset():
         return out_img
 
 
+
 if __name__ == "__main__":
-    os.chdir("Dataset_1/")
-    data1 = AugmentDataset("data.csv")
-    if os.path.isdir("output_1"):
-        print("removing old output dir..")
-        shutil.rmtree("output_1",ignore_errors=True)
-    data1.run_augmentation("output_1",brightness=True,shadows=True,hflip=True,horizontal_translate=False,blur = True)
+    parser = argparse.ArgumentParser(description='augment data')
+    parser.add_argument('--folder', type=str,
+                        help='folder with data to be augmented')
+    parser.add_argument('--probability',type = int, help = "augment chance = 1/x")
+    args = parser.parse_args()
+    folder = args.folder
+    prob = args.probability
+
+    os.chdir(folder)
+    data1 = AugmentDataset("data.csv", prob)
+
+    data1.run_augmentation(folder + "aug",brightness=True,shadows=True,hflip=True,horizontal_translate=False,blur = True)
 
 
 
