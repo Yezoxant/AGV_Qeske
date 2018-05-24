@@ -57,7 +57,6 @@ class AugmentDataset():
 
             for image in self.images:
                 if image[2] == "0.0":
-                    print("0 steer skipped")
                     continue
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.augment_brightness_camera_images(image[0])

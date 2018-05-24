@@ -25,19 +25,26 @@ with open(csv_file_name) as csv_file:
     for row in reader:
         if count in randomrows:
             img = cv2.imread(row[0])
+            cv2.imshow(str(len(images)),img)
             ang = row[2]
             img = np.array(img, dtype=np.float64)
             img = img[:, :, :] - 128
             img = img[:, :, :] * (1 / 128)
             images.append(img)
-            steering.append(ang)
+            steering.append(float(ang))
         count += 1
 
 images = np.array(images)
-# steering = np.array(steering)
 
 model = load_model('full_model.h5')
-predictions = []
 predictions = model.predict(images)
+l_predictions = []
+for p in predictions:
+    l_predictions.append(p)
+    print(p)
+print(steering)
 
-#pyplot.plot(range(len(images)),predictions,'g^',range(len(images)), steering, 'g-')
+pyplot.plot(range(len(images)),l_predictions,'ro')
+pyplot.plot(range(len(images)),steering,'bo')
+pyplot.savefig("modeltest")
+cv2.waitKey(0)
