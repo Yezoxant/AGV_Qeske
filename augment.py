@@ -177,7 +177,7 @@ if __name__ == "__main__":
     os.chdir(folder)
     data1 = AugmentDataset("data.csv", prob)
 
-    data1.run_augmentation(folder + "aug",brightness=True,shadows=True,hflip=True,horizontal_translate=False,blur = True)
+    data1.run_augmentation(folder + "_aug",brightness=True,shadows=True,hflip=True,horizontal_translate=False,blur = True)
 
 
 
