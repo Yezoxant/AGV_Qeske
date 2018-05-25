@@ -17,8 +17,12 @@ class AugmentDataset():
             reader = csv.reader(csv_file)
             for row in reader:
                 # Load all source images and steering inputs. images is a list of lists [[[cv2 img_matrix],throttle,steering],...]
-                if row[1] != "0.0": #filter out 0 throttle images
-                    self.images.append([cv2.imread(row[0]),row[1],row[2]])
+                if row[1] == "0.0": #filter out 0 throttle images
+                    continue
+                if row[2] == '0.0':
+                    if np.random.randint(0, 2) == 0:
+                        continue
+                self.images.append([cv2.imread(row[0]), row[1], row[2]])
 
         if self.images[0] == None:
             print("No images imported")
@@ -44,8 +48,7 @@ class AugmentDataset():
         if shadows:
 
             for image in self.images:
-                if image[2] == "0.0":
-                    continue
+
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.add_random_shadow(image[0])
                     img_name = "image" + str(count) + ".jpeg"
@@ -56,8 +59,7 @@ class AugmentDataset():
         if brightness:
 
             for image in self.images:
-                if image[2] == "0.0":
-                    continue
+
                 if np.random.randint(0, base_chance) == 0:
                     out_img = self.augment_brightness_camera_images(image[0])
                     img_name = "image"+str(count)+".jpeg"
@@ -68,14 +70,13 @@ class AugmentDataset():
         if hflip:
 
             for image in self.images:
-                if image[2] == "0.0":
-                    continue
-                if np.random.randint(0, base_chance) == 0:
-                    out_img = self.hflip(image[0])
-                    img_name = "image"+str(count)+".jpeg"
-                    self.save_image(img_name,out_img)
-                    writer.writerow([img_name, image[1], float(image[2])*-1]) #invert steering angle
-                    count += 1
+
+                #if np.random.randint(0, base_chance) == 0:
+                out_img = self.hflip(image[0])
+                img_name = "image"+str(count)+".jpeg"
+                self.save_image(img_name,out_img)
+                writer.writerow([img_name, image[1], float(image[2])*-1]) #invert steering angle
+                count += 1
 
         if horizontal_translate:
 
