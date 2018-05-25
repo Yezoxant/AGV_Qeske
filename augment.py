@@ -170,7 +170,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='augment data')
     parser.add_argument('--folder', type=str,
                         help='folder with data to be augmented')
-    parser.add_argument('--probability',type = int, help = "augment chance = 1/x")
+    parser.add_argument('--probability',type = int, default = 2,help = "augment chance = 1/x")
     args = parser.parse_args()
     folder = args.folder
     prob = args.probability
