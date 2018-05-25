@@ -5,6 +5,8 @@ import Capture_Steering as steering
 from csv_editor import csv_Editor
 import time, logging, os
 import numpy as np
+from PIL import Image
+import io
 
 
 #constants for pin numbers
@@ -31,11 +33,11 @@ def init_GPIO():
 def initCamera():
     global camera
     camera = PiCamera()
-    camera.resolution = (480, 272)
+    camera.resolution = (480, 270)
     camera.vflip = True
     camera.hflip = True
     camera.exposure_mode = 'sports'
-    camera.framerate = 24
+    camera.framerate = 32
     camera.start_preview()
     sleep(2)
     camera.stop_preview()
@@ -71,39 +73,43 @@ def captureImageLoop():
             GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.HIGH)
             start = time.time()
             print("Entered imagecapture loop")
-            timestamp = strftime("%d-%m_%H-%M-%S") #TODO:Add milliseconds
-            picturename = 'img({})_{}.jpeg'.format(timestamp,image_counter)
-            test = time.time()
-            print((test-start),"seconds: test loop1")
-            #picturesave = os.path.join(path,picturename)
-            output = np.empty((272,480,3), dtype=np.uint8)
+            timestamp = strftime("%d-%m_%H-%M-%S")
+            stream = io.BytesIO()
+            os.chdir(path)
+            #output = np.empty((272,480,3), dtype=np.uint8)
 
-            motion = steering.get_motion()
-            test = time.time()
-            print((test-start),"seconds: test loop2")
-
-            if motion == None:
-                for i in range(5):
-                    GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
-                    sleep(0.5)
-                    GPIO.output(OUTPUT_ERROR_PIN, GPIO.LOW)
-                break
-            else:
-                throttle, steeringinput = motion
-                camera.capture(output, 'rgb', use_video_port=True)
-                image_counter += 1
+            for j in camera.capture_continuous(stream,format='jpeg',use_video_port=True):
+                picturename = 'image{}.jpg'.format(image_counter)
+                stream.seek(0)  
+                image = Image.open(stream)
+                image.save(picturename)
+                start = time.time()
+                motion = steering.get_motion()
                 test = time.time()
-                print((test-start),"seconds: test loop3")
-                editor.editCsv(picturename,throttle, steeringinput)#editing csv file
-                test = time.time()
-                print((test-start),"seconds: test loop4")
+                print((test-start),"seconds: test loop2")
 
-            stop = time.time()
-            execTime = stop - start
-            print((stop-start),"seconds: end loop")
-            while execTime < 0.75:
-                execTime = time.time()-start
-            print(execTime)
+                if motion == None:
+                    for i in range(5):
+                        GPIO.output(OUTPUT_ERROR_PIN, GPIO.HIGH)
+                        sleep(0.5)
+                        GPIO.output(OUTPUT_ERROR_PIN, GPIO.LOW)
+                    break
+                else:
+                    throttle, steeringinput = motion
+                    #camera.capture(output, 'rgb', use_video_port=True)
+                    timestamp = strftime("%d-%m_%H-%M-%S")
+                    test = time.time()
+                    print((test-start),"seconds: test loop3")
+                    editor.editCsv(picturename,throttle, steeringinput)#editing csv file
+                    image_counter += 1
+                    test = time.time()
+                    print((test-start),"seconds: test loop4")
+
+                stop = time.time()
+                print((stop-start),"seconds: end loop")
+                if not save_data_active:
+                    print(image_counter)
+                    break
 
         while not save_data_active: #Loop during pause status.
             GPIO.output(OUTPUT_SAVE_DATA_PIN, GPIO.LOW)
