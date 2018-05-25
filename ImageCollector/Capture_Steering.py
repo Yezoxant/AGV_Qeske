@@ -25,8 +25,8 @@ def get_motion():
         steering_logger.info("regex found result:%s",str(res.groups()))
         tempthrottle = str(res.group(1))
         tempsteering = str(res.group(2))
-        throttle = int(tempthrottle) / 100
-        steering = int(tempsteering) / 100
+        throttle = float(tempthrottle) / 100
+        steering = float(tempsteering) / 100
         print(throttle, steering)
         return (throttle,steering)
     else:
