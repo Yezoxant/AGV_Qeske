@@ -101,6 +101,7 @@ def main():
 
     parser.add_argument('--batch_size', type=int, default=64, help='training batch size')
     parser.add_argument('--epoch', type=int, default=10, help='# of training epoch')
+    parser.add_argument('--vsplit', type=float, default=0.1, help='# of training epoch')
     args = parser.parse_args()
 
 

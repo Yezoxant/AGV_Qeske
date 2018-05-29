@@ -28,8 +28,8 @@ class AugmentDataset():
             print("No images imported")
 
 
-    def run_augmentation(self,output_folder, brightness = False, shadows = False, horizontal_translate = False, hflip = False, blur = False):
-
+    def run_augmentation(self,output_folder, brightness = False, shadows = False, hflip = False, blur = False):
+        #This method runs the selected augmentations on a dataset of pictures with steering angles.
         os.mkdir(output_folder)
         os.chdir(output_folder)
         augdata_csv = open("augdata.csv", 'a',newline='')
@@ -102,12 +102,14 @@ class AugmentDataset():
 
 
     def save_image(self,name,image):
-
-        cropped_image = image[70:200, 0:480] #imsize is 480x270, crop top and botton 70 pixels
+        #All images get saved by this method. We set size and colorspace here.
+        cropped_image = image[crop_bot:270-crop_top, 0:480] #imsize is 480x270, crop top and botton 70 pixels
         resized_image = cv2.resize(cropped_image,(200,66))
         hsv_image = cv2.cvtColor(resized_image, cv2.COLOR_RGB2HSV)
         cv2.imwrite(name, hsv_image)
 
+
+    #Augmentation functions: Take an image and output an augmented image
     def blur_image(self,image):
         kernelsize = np.random.randint(3,6)
         image_out = cv2.blur(image,(kernelsize, kernelsize))
@@ -123,19 +125,6 @@ class AugmentDataset():
         image1 = np.array(image1, dtype=np.uint8)
         image1 = cv2.cvtColor(image1, cv2.COLOR_HSV2RGB)
         return image1
-
-    def trans_image(self,image, steer, trans_range):
-
-        # Translation
-        tr_x = trans_range * np.random.uniform() - trans_range / 2
-        steer_ang = float(steer) + tr_x / trans_range * 2 * .2
-        # tr_y = 40 * np.random.uniform() - 40 / 2
-        # tr_y = 0
-        Trans_M = np.float32([1, 0, tr_x])
-        image_tr = cv2.warpAffine(image, Trans_M, (cols, rows))
-
-        return image_tr, steer_ang
-
 
     def add_random_shadow(self,image):
 
@@ -171,14 +160,20 @@ if __name__ == "__main__":
     parser.add_argument('--folder', type=str,
                         help='folder with data to be augmented')
     parser.add_argument('--probability',type = int, default = 2,help = "augment chance = 1/x")
+    parser.add_argument('--crop_top',type = int, default = 30,help = "crop top")
+    parser.add_argument('--crop_bot',type = int, default = 70,help = "crop bottom ")
+
     args = parser.parse_args()
     folder = args.folder
     prob = args.probability
-
+    crop_top = args.crop_top
+    crop_bot = args.crop_bot
     os.chdir(folder)
     data1 = AugmentDataset("data.csv", prob)
 
-    data1.run_augmentation(folder + "_aug",brightness=True,shadows=True,hflip=True,horizontal_translate=False,blur = True)
+    #Set args to False to disable the augmentation tecnique entirely
+    data1.run_augmentation(folder + "_aug",brightness=True,shadows=True,hflip=True,blur = True)
+
 
 
 

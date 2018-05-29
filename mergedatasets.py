@@ -4,6 +4,10 @@ import argparse
 import os
 import shutil
 
+
+#This script merges 2 datasets created by the augdata script into a single Merged dataset.
+#Commandline arguments are the name as string of 2 source fodlers (that contain an augdata.csv file) and the name of the output folder (nonexisting) with merged data
+
 parser = argparse.ArgumentParser(description='merge datasets')
 parser.add_argument('--folder1', type=str)
 parser.add_argument('--folder2', type=str)

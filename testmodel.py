@@ -1,3 +1,6 @@
+"""Loads a model saved by the save_model function in keras and then makes a preditions on a random set of images from a dataset.
+Plots the output predicted by the netwerk vs the actual steering angle recorded."""
+
 from keras.models import load_model
 # from keras.models import Model
 import csv
