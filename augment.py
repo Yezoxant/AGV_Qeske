@@ -15,8 +15,14 @@ class AugmentDataset():
 
         with open(csv_path,"r") as csv_file:
             reader = csv.reader(csv_file)
+            loadcount = 0
             for row in reader:
                 # Load all source images and steering inputs. images is a list of lists [[[cv2 img_matrix],throttle,steering],...]
+                if loadcount < 50:
+                    self.save_image("img"+str(loadcount),cv2.imread(row[0]))
+                    loadcount+= 1
+                    continue #Go to next for loop iteration (skips everything under this)
+
                 if row[1] == "0.0": #filter out 0 throttle images
                     continue
                 if row[2] == '0.0':
