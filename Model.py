@@ -8,7 +8,7 @@ import cv2
 
 import argparse
 import os
-#import time
+import time
 
 #from os import path
 # from collections import defaultdict
