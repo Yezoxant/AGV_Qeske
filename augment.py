@@ -9,30 +9,41 @@ import argparse
 class AugmentDataset():
 
     def __init__(self,csv_path, chance = 1):
-        self.csv_path = csv_path
+        self.csv_path = csv_path #Path to data.csv file that contains image names and steering angles
         self.images = []
         self.base_chance = chance
 
+        #Make testdata folder
+        testdir_name = 'test_dir'
+        os.mkdir(testdir_name)
+
         with open(csv_path,"r") as csv_file:
             reader = csv.reader(csv_file)
+            writefile = open(testdir_name+"/data.csv",mode = "w", newline = '')
+            writer = csv.writer(writefile)
             loadcount = 0
-            for row in reader:
-                # Load all source images and steering inputs. images is a list of lists [[[cv2 img_matrix],throttle,steering],...]
-                if loadcount < 50:
-                    self.save_image("img"+str(loadcount),cv2.imread(row[0]))
-                    loadcount+= 1
-                    continue #Go to next for loop iteration (skips everything under this)
+            for row in reader:# Load all source images and steering inputs into memory.
 
-                if row[1] == "0.0": #filter out 0 throttle images
+                if loadcount < 50: #Save the first images for testing the trained network on a continuous dataset
+                    img = cv2.imread(row[0])
+                    img_name = "img"+str(loadcount) + "steer" +str(row[2]) + ".jpeg"
+                    writer.writerow([img_name,row[1],row[2]])
+                    self.save_image(testdir_name+"/"+img_name, img)
+                    loadcount+= 1
+
+                    continue #Go to next for loop iteration (skips everything under this)
+                else:
+                    writefile.close()
+
+                if row[1] == "0.0": #skip 0 throttle images
                     continue
                 if row[2] == '0.0':
-                    if np.random.randint(0, 2) == 0:
+                    if np.random.randint(0, 2) == 0:#Remove a part of the 0 steer images
                         continue
-                self.images.append([cv2.imread(row[0]), row[1], row[2]])
+                self.images.append([cv2.imread(row[0]), row[1], row[2]]) #images is a list of lists [[[cv2 img_matrix],throttle,steering],...]
 
         if self.images[0] == None:
             print("No images imported")
-
 
     def run_augmentation(self,output_folder, brightness = False, shadows = False, hflip = False, blur = False):
         #This method runs the selected augmentations on a dataset of pictures with steering angles.
@@ -52,7 +63,7 @@ class AugmentDataset():
             count += 1
 
         if shadows:
-
+            #Iterate over all images and randomly select some for augmentation
             for image in self.images:
 
                 if np.random.randint(0, base_chance) == 0:
@@ -77,23 +88,12 @@ class AugmentDataset():
 
             for image in self.images:
 
-                #if np.random.randint(0, base_chance) == 0:
                 out_img = self.hflip(image[0])
                 img_name = "image"+str(count)+".jpeg"
                 self.save_image(img_name,out_img)
                 writer.writerow([img_name, image[1], float(image[2])*-1]) #invert steering angle
                 count += 1
 
-        if horizontal_translate:
-
-            for image in self.images:
-
-                if np.random.randint(0, base_chance) == 0:
-                    out_img = self.trans_image(image[0],image[2],0.01)
-                    img_name = "image" + str(count) + ".jpeg"
-                    self.save_image(img_name, out_img)
-                    writer.writerow([img_name, image[1], float(image[2])*-1])
-                    count += 1
         if blur:
             for image in self.images:
 
@@ -111,8 +111,8 @@ class AugmentDataset():
         #All images get saved by this method. We set size and colorspace here.
         cropped_image = image[crop_bot:270-crop_top, 0:480] #imsize is 480x270, crop top and botton 70 pixels
         resized_image = cv2.resize(cropped_image,(200,66))
-        hsv_image = cv2.cvtColor(resized_image, cv2.COLOR_RGB2HSV)
-        cv2.imwrite(name, hsv_image)
+        out_image = cv2.cvtColor(resized_image, cv2.COLOR_RGB2HSV)
+        cv2.imwrite(name, out_image)
 
 
     #Augmentation functions: Take an image and output an augmented image
@@ -162,7 +162,8 @@ class AugmentDataset():
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='augment data')
+
+    parser = argparse.ArgumentParser(description='augment data') #Set commandline arguments for the script
     parser.add_argument('--folder', type=str,
                         help='folder with data to be augmented')
     parser.add_argument('--probability',type = int, default = 2,help = "augment chance = 1/x")
@@ -177,7 +178,7 @@ if __name__ == "__main__":
     os.chdir(folder)
     data1 = AugmentDataset("data.csv", prob)
 
-    #Set args to False to disable the augmentation tecnique entirely
+    #Set args to False to disable that augmentation entirely
     data1.run_augmentation(folder + "_aug",brightness=True,shadows=True,hflip=True,blur = True)
 
 
