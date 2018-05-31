@@ -73,7 +73,7 @@ def build_cnn():
     return model
 
 def data_setup():
-    os.chdir("RechteLijnen_aug/")
+    os.chdir("Winkelrekken\Winkelrekken_aug")
     images = []
     steering = []
 
@@ -112,7 +112,7 @@ def main():
     steering = npdata[1]
     os.chdir("../")
     #save model into new file every epoch
-    callbacks = [ModelCheckpoint('model_sim_{epoch:02d}.h5', monitor='val_loss', verbose=0, save_best_only=False,save_weights_only=True,mode='min')]
+    callbacks = [ModelCheckpoint('model_sim_{epoch:02d}.h5', monitor='val_loss', verbose=0, save_best_only=False,save_weights_only=False,mode='min')]
     #run the model
     model.fit(images,
               steering,
@@ -120,8 +120,7 @@ def main():
               ,epochs=args.epoch
               ,verbose=1
               ,callbacks=callbacks,
-              validation_split=0.1)
-    model.save("full_model.h5")
+              validation_split= args.vsplit)
 
     #Testing model
 

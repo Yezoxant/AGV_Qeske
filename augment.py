@@ -109,7 +109,7 @@ class AugmentDataset():
 
     def save_image(self,name,image):
         #All images get saved by this method. We set size and colorspace here.
-        cropped_image = image[crop_bot:270-crop_top, 0:480] #imsize is 480x270, crop top and botton 70 pixels
+        cropped_image = image[crop_top:270-crop_bot, 0:480] #imsize is 480x270, crop top and botton 70 pixels
         resized_image = cv2.resize(cropped_image,(200,66))
         out_image = cv2.cvtColor(resized_image, cv2.COLOR_RGB2HSV)
         cv2.imwrite(name, out_image)
