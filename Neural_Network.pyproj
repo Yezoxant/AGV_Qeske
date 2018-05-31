@@ -26,6 +26,9 @@
     <Compile Include="inprogress\run.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="modutestle1.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="testmodel.py" />
     <Compile Include="inprogress\visualizingCNN.py">
       <SubType>Code</SubType>
