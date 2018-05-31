@@ -23,13 +23,7 @@
     <Compile Include="Model.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="inprogress\run.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="testmodel.py" />
-    <Compile Include="inprogress\visualizingCNN.py">
-      <SubType>Code</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <InterpreterReference Include="Global|PythonCore|3.6" />
@@ -40,9 +34,6 @@
       <Project>{477cdebc-ba9d-49da-9a27-93c477316b88}</Project>
       <Private>True</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="inprogress\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>
