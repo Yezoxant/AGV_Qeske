@@ -17,9 +17,9 @@ folder1 = args.folder1
 folder2 = args.folder2
 outputfolder = args.outputfolder
 
-csv_path1 = folder1 + "/augdata.csv"
+csv_path1 = folder1 + "/data.csv"
 print("csv1:" + csv_path1)
-csv_path2 = folder2 + "/augdata.csv"
+csv_path2 = folder2 + "/data.csv"
 print("csv2:" + csv_path2)
 os.mkdir(outputfolder)
 with open(outputfolder + "/augdata.csv", "w", newline='') as writefile:

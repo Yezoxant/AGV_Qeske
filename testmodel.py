@@ -1,4 +1,4 @@
-"""Loads a model saved by the save_model function in keras and then makes a preditions on a random set of images from a dataset.
+"""Loads a model saved by the save_model function in keras and then makes a preditions on a random set or a dedicated dataset of images from a dataset.
 Plots the output predicted by the netwerk vs the actual steering angle recorded."""
 
 from keras.models import load_model
@@ -9,8 +9,9 @@ from matplotlib import pyplot
 import matplotlib
 import cv2
 import time
+import os
 
-# os.chdir("testdata/")
+os.chdir("Rechte_winkel_test/")
 # create variable lists
 def random_datatest():
 
@@ -56,7 +57,7 @@ def random_datatest():
 
 
 def continuous_datatest():
-
+    modelname = 'model_sim_10'
     images = []
     steering = []
     csv_file_name = "augdata.csv"
@@ -77,19 +78,27 @@ def continuous_datatest():
 
     images = np.array(images)
 
-    model = load_model('full_model.h5')
+    model = load_model(modelname + '.h5')
     predictions = model.predict(images)
     l_predictions = []
+ 
     for p in predictions:
         l_predictions.append(p)
-        print(p)
-    print(steering)
+
+    diff = []    
+    for n in range(len(steering)):
+        diff.append(abs(l_predictions[n] - steering[n]))
+
+    diffsum = sum(diff)
+    avg = diffsum / len(diff)
+    print("sum loss =" + str(diffsum))
+    print("avg loss =" + str(avg))
 
     predict, = pyplot.plot(l_predictions, 'ro', label='prediction')
     actual, = pyplot.plot(steering, 'bo', label='actual')  # range(len(images))
-
+    pyplot.title("Prediction vs Actual. Avg loss=" + str(avg))
     pyplot.legend(handles=[predict, actual])
-    pyplot.savefig("modeltest")
+    pyplot.savefig(modelname)
 
 if __name__ == "__main__":
     #random_datatest()

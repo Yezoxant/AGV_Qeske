@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{b2d4484b-bf47-43e3-ac75-58cf98388d3e}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>Model.py</StartupFile>
+    <StartupFile>testmodel.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -20,6 +20,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="augment.py" />
+    <Compile Include="mergedatasets.py" />
     <Compile Include="Model.py">
       <SubType>Code</SubType>
     </Compile>
