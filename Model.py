@@ -1,30 +1,22 @@
+"""Script for training the neural netwerk
+Pay attention to the different required constants
+Data folder"""
+
+
 import numpy as np
-#import pandas as pd
 import csv
 import cv2
-#import random
-#import matplotlib.image as mpimg
-#mpl.use('Agg')
 
 import argparse
 import os
 import time
-
-#from os import path
-# from collections import defaultdict
-# from numpy import sin, cos
-# from scipy.misc import imread, imresize, imsave
-# from scipy import ndimage
-# from scipy import misc
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.models import Model, Sequential
 #from keras.preprocessing import image
 from keras.layers import Dense, Flatten, Dropout, Input, BatchNormalization
 from keras.layers import Convolution2D, MaxPooling2D, AveragePooling2D, GlobalAveragePooling2D
-#from keras.layers.advanced_activations import ELU
 from keras.optimizers import Adam
-#from keras import backend as K
 
 
 def build_cnn():
@@ -102,6 +94,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=64, help='training batch size')
     parser.add_argument('--epoch', type=int, default=10, help='# of training epoch')
     parser.add_argument('--vsplit', type=float, default=0.2, help='# of training epoch')
+    #parser.add_argument('--datafolder', type=str, help='Folder with all the data (complete path)')
     args = parser.parse_args()
 
 

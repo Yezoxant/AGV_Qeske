@@ -2,7 +2,6 @@
 Plots the output predicted by the netwerk vs the actual steering angle recorded."""
 
 from keras.models import load_model
-# from keras.models import Model
 import csv
 import numpy as np
 from matplotlib import pyplot
